@@ -13,7 +13,7 @@ class _CityScreenState extends State<CityScreen> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('images/city_background.jpg'),
+            image: AssetImage('assets/images/city_background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -38,7 +38,7 @@ class _CityScreenState extends State<CityScreen> {
               FilledButton(
                 onPressed: () {},
                 child: Text(
-                  'Get Weather',
+                  'Wetter laden',
                   style: kButtonTextStyle,
                 ),
               ),
