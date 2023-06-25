@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 import '../services/networking.dart';
 import '../utilities/constants.dart';
+import 'location_screen.dart';
 
 // Definiert das StatefulWidget LoadingScreen
 class LoadingScreen extends StatefulWidget {
@@ -49,6 +50,15 @@ class _LoadingScreenState extends State<LoadingScreen> {
       print('Wetterlage: $condition');
       print('Stadt: $city');
       print('Beschreibung: $description');
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocationScreen(
+            weatherData: weatherData,
+          ),
+        ),
+      );
     } catch (e) {
       print(e);
     }

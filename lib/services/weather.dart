@@ -19,6 +19,26 @@ class WeatherModel {
     }
   }
 
+  String getWeatherImage(int condition) {
+    if (condition < 300) {
+      return 'assets/images/thunderstorm.png';
+    } else if (condition < 400) {
+      return 'assets/images/rainy_city.png';
+    } else if (condition < 600) {
+      return 'assets/images/shower.png';
+    } else if (condition < 700) {
+      return 'assets/images/snowy.png';
+    } else if (condition < 800) {
+      return 'assets/images/foggy.png';
+    } else if (condition == 800) {
+      return 'assets/images/sunny.png';
+    } else if (condition <= 804) {
+      return 'assets/images/cloudy.png';
+    } else {
+      return 'assets/images/froggy.png';
+    }
+  }
+
   String getMessage(int temp) {
     if (temp > 25) {
       return 'Warm genug um 🍦 zu essen';
