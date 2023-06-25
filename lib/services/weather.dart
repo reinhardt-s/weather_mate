@@ -1,3 +1,33 @@
+import '../utilities/constants.dart';
+import 'location.dart';
+import 'networking.dart';
+
+class WeatherHandler {
+  Future<dynamic> getWeatherDataByCurrentLocation() async {
+    Location location = Location();
+    await location.getCurrentLocation();
+
+    try {
+      WeatherApi weatherApi = WeatherApi(
+          'https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&lang=de&units=metric&appid=${kApiKey}');
+      var weatherData = await weatherApi.getWeatherData();
+      return weatherData;
+    } catch (e) {
+      throw ('Fehler beim Abrufen der Wetterdaten');
+    }
+  }
+
+  Future<dynamic> getWeatherDataByCityName(String cityName) async {
+    try {
+      WeatherApi weatherApi = WeatherApi('https://api.openweathermap.org/data/2.5/weather?q=$cityName&lang=de&units=metric&appid=${kApiKey}');
+      var weatherData = await weatherApi.getWeatherData();
+      return weatherData;
+    } catch (e) {
+      throw ('Fehler beim Abrufen der Wetterdaten');
+    }
+  }
+}
+
 class WeatherModel {
   String getWeatherIcon(int condition) {
     if (condition < 300) {

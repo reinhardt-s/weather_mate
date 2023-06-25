@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:video_player/video_player.dart';
+import 'package:weather_mate/services/weather.dart';
 
 import '../services/location.dart';
 import 'package:http/http.dart' as http;
@@ -39,17 +40,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
     await location.getCurrentLocation();
 
     try {
-      WeatherApi weatherApi = WeatherApi(
-          'https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&lang=de&units=metric&appid=${kApiKey}');
-      var weatherData = await weatherApi.getWeatherData();
-      double temp = weatherData['main']['temp'];
-      int condition = weatherData['weather'][0]['id'];
-      String city = weatherData['name'];
-      String description = weatherData['weather'][0]['description'];
-      print('Temperatur: $temp');
-      print('Wetterlage: $condition');
-      print('Stadt: $city');
-      print('Beschreibung: $description');
+      WeatherHandler weatherHandler = WeatherHandler();
+      var weatherData = await weatherHandler.getWeatherDataByCurrentLocation();
 
       Navigator.push(
         context,

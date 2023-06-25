@@ -1,15 +1,15 @@
 // Importieren der notwendigen Bibliotheken
 import 'package:flutter/material.dart';
 import 'package:weather_mate/services/weather.dart';
-import '../utilities/constants.dart'; // Importiert Konstanten für die App
+import '../utilities/constants.dart';
+import 'city_screen.dart'; // Importiert Konstanten für die App
 
 // Definiert den Standort-Bildschirm als Stateful Widget
 class LocationScreen extends StatefulWidget {
-
   final weatherData;
+
   // Konstruktor für das LocationScreen Widget
   const LocationScreen({super.key, required this.weatherData});
-
 
   @override
   _LocationScreenState createState() => _LocationScreenState();
@@ -17,13 +17,13 @@ class LocationScreen extends StatefulWidget {
 
 // Der Zustand des LocationScreen Widgets
 class _LocationScreenState extends State<LocationScreen> {
-
   double? temp;
   String? condition;
   String? city;
   String? description;
   String weatherImage = 'assets/images/rainy_city.png';
   WeatherModel weatherModel = WeatherModel();
+  WeatherHandler weatherHandler = WeatherHandler();
 
   @override
   void initState() {
@@ -31,11 +31,39 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   void updateUI(dynamic weatherData) {
-    temp = weatherData['main']['temp'];
+    if (weatherData == null) {
+      temp = 0;
+      condition = 'Error';
+      city = '';
+      description = 'Es konnten keine Daten geladen werden.';
+      weatherImage = 'assets/images/froggy.png';
+      return;
+    }
+
+    if (weatherData['main']['temp'] is double) {
+      temp = weatherData['main']['temp'];
+    } else if (weatherData['main']['temp'] is int) {
+      temp = weatherData['main']['temp'].toDouble();
+
+    }
+
     condition = weatherModel.getWeatherIcon(weatherData['weather'][0]['id']);
     city = weatherData['name'];
     description = weatherData['weather'][0]['description'];
     weatherImage = weatherModel.getWeatherImage(weatherData['weather'][0]['id']);
+  }
+
+  void reloadWeatherData() async {
+    dynamic weatherData;
+    try {
+      weatherData = await weatherHandler.getWeatherDataByCurrentLocation();
+    } catch (e) {
+      print(e);
+      print('Showing error message');
+    }
+    setState(() {
+      updateUI(weatherData);
+    });
   }
 
   @override
@@ -64,14 +92,26 @@ class _LocationScreenState extends State<LocationScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   FilledButton(
-                    onPressed: () {}, // Aktion für den Button (zu implementieren)
+                    onPressed: () {
+                      reloadWeatherData();
+                    }, // Aktion für den Button (zu implementieren)
                     child: Icon(
                       Icons.near_me,
                       size: 30.0,
                     ),
                   ),
                   FilledButton(
-                    onPressed: () {}, // Aktion für den Button (zu implementieren)
+                    onPressed: () async {
+                      String cityName = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return CityScreen();
+                      }));
+                      if (cityName != '') {
+                        dynamic weatherData = await weatherHandler.getWeatherDataByCityName(cityName);
+                        setState(() {
+                          updateUI(weatherData);
+                        });
+                      }
+                    }, // Aktion für den Button (zu implementieren)
                     child: Icon(
                       Icons.location_city,
                       size: 30.0,
