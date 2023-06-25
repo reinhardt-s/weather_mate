@@ -1,8 +1,13 @@
 // Importiert die Flutter Material Bibliothek
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'dart:convert';
+import 'package:http/http.dart';
+import 'package:video_player/video_player.dart';
 
 import '../services/location.dart';
+import 'package:http/http.dart' as http;
+
+import '../services/networking.dart';
 import '../utilities/constants.dart';
 
 // Definiert das StatefulWidget LoadingScreen
@@ -14,19 +19,39 @@ class LoadingScreen extends StatefulWidget {
 
 // Definiert die Klasse _LoadingScreenState, die den Status für das StatefulWidget verwaltet
 class _LoadingScreenState extends State<LoadingScreen> {
-  // Future -> Ein Future-Objekt repräsentiert ein Warteobjekt für einen zukünftigen Wert
-
-
   Location location = Location();
+  late VideoPlayerController _controller;
+
   @override
   void initState() {
     super.initState();
-    getLocation();
+    _controller = VideoPlayerController.asset('assets/videos/welcome.mp4')
+      ..initialize().then((_) {
+        _controller.play();
+        setState(() {});
+      });
+    getWeatherDataForLocation();
   }
 
-  void getLocation() async {
+  void getWeatherDataForLocation() async {
+    Location location = Location();
     await location.getCurrentLocation();
-    print('Current Location: ${location.latitude} ${location.longitude}');
+
+    try {
+      WeatherApi weatherApi = WeatherApi(
+          'https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&lang=de&units=metric&appid=${kApiKey}');
+      var weatherData = await weatherApi.getWeatherData();
+      double temp = weatherData['main']['temp'];
+      int condition = weatherData['weather'][0]['id'];
+      String city = weatherData['name'];
+      String description = weatherData['weather'][0]['description'];
+      print('Temperatur: $temp');
+      print('Wetterlage: $condition');
+      print('Stadt: $city');
+      print('Beschreibung: $description');
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -35,25 +60,35 @@ class _LoadingScreenState extends State<LoadingScreen> {
     // Gibt ein Scaffold-Widget zurück, das das Grundgerüst für das Material Design erstellt
     return Scaffold(
       // Der Hauptteil der App
-      body: Stack(children: [
-        // Hintergrundbild
-        Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/satellite.png'),
-              fit: BoxFit.cover,
-            ),
+      body: SafeArea(
+        child: Stack(children: [
+          // Hintergrundbild
+          _controller.value.isInitialized
+              ? VideoPlayer(_controller)
+              : Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/satellite.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+          Center(
+            // Zentriert die Kind-Widgets
+            child: Padding(
+                // Fügt am Rand ein Padding hinzu
+                padding: EdgeInsets.all(30.0),
+                // Erstellt eine Spalte für Kind-Widgets
+                child: Container()),
           ),
-        ),
-        Center(
-          // Zentriert die Kind-Widgets
-          child: Padding(
-              // Fügt am Rand ein Padding hinzu
-              padding: EdgeInsets.all(30.0),
-              // Erstellt eine Spalte für Kind-Widgets
-              child: Container()),
-        ),
-      ]),
+        ]),
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 }
