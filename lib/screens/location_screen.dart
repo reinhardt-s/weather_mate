@@ -39,14 +39,14 @@ class _LocationScreenState extends State<LocationScreen> {
                     onPressed: () {}, // Aktion für den Button (zu implementieren)
                     child: Icon(
                       Icons.near_me,
-                      size: 50.0,
+                      size: 30.0,
                     ),
                   ),
                   FilledButton(
                     onPressed: () {}, // Aktion für den Button (zu implementieren)
                     child: Icon(
                       Icons.location_city,
-                      size: 50.0,
+                      size: 30.0,
                     ),
                   ),
                 ],
